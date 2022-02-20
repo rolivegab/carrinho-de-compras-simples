@@ -1,24 +1,45 @@
-import logo from './logo.svg';
-import './App.css';
+import { useState } from "react";
+import Carrinho from "./components/Carrinho";
+import ListaDeProdutos from "./components/ListaDeProdutos";
+import produtos from "./produtos";
 
 function App() {
+  const [itemsDoCarrinho, setItemsDoCarrinho] = useState([])
+
+  const adicionarItemAoCarrinho = (item) => {
+    setItemsDoCarrinho(p => {
+      const indexDoElemento = p.findIndex(i => i.id === item.id)
+      if (indexDoElemento === -1) {
+        return [
+          ...p,
+          {...item, quantidade: 1}
+        ]
+      } else {
+        return [
+          ...p.slice(0, indexDoElemento),
+          {...p[indexDoElemento], quantidade: p[indexDoElemento].quantidade + 1},
+          ...p.slice(indexDoElemento + 1)
+        ]
+      }
+    })
+  }
+
+  const removerItemDoCarrinho = (item) => {
+    setItemsDoCarrinho(p => {
+      const indexDoElemento = p.findIndex(i => i.id === item.id)
+      return [
+        ...p.slice(0, indexDoElemento),
+        ...(p[indexDoElemento].quantidade === 1 ? [] : [{...p[indexDoElemento], quantidade: p[indexDoElemento].quantidade - 1}]),
+        ...p.slice(indexDoElemento + 1)
+      ]
+    })
+  }
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <Carrinho {...{itemsDoCarrinho, removerItemDoCarrinho}} />
+      <ListaDeProdutos {...{produtos, adicionarItemAoCarrinho}} />
+    </>
   );
 }
 
